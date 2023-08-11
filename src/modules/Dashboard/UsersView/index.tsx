@@ -44,7 +44,7 @@ const UsersView = ({ user }: any) => {
         Welcome to {user?.name}'s Dashboard
       </h2>
 
-      <section className="flex gap-6 flex-wrap justify-center">
+      <section className="flex gap-4 flex-wrap justify-center">
         <div className="shadow-md relative w-[170px] h-[140px] bg-white">
           <div className="absolute top-[-20px] shadow-lg shadow-blue-500 bg-blue-400 w-20 h-12 rounded-md inline-grid place-items-center left-1/2 translate-x-[-50%]">
             <FiUsers className="w-7 h-7 text-white" />

@@ -13,6 +13,8 @@ import { CgNotes } from 'react-icons/cg';
 import { MdNotes } from 'react-icons/md';
 import { AppRoles } from '../../enums/roles';
 import Logo from '../../styles/logo.jpg';
+import OrganizationView from '../../modules/Dashboard/OrganizationView';
+import OrganizationAdminView from '../../modules/Dashboard/OrganizationAdminView';
 
 const Sidebar = () => {
   const navigate = useNavigate();
@@ -51,7 +53,7 @@ const Sidebar = () => {
     },
   ];
   const organizationSidebar = [
-    { id: 1, title: 'Dashboard', icon: <MdDashboard />, url: '/' },
+    // { id: 1, title: 'Dashboard', icon: <MdDashboard />, url: '/' },
     {
       id: 2,
       title: 'Employees',
@@ -75,7 +77,7 @@ const Sidebar = () => {
   ];
 
   const organizationAdminSidebar = [
-    { id: 1, title: 'Dashboard', icon: <MdDashboard />, url: '/' },
+    // { id: 1, title: 'Dashboard', icon: <MdDashboard />, url: '/' },
     {
       id: 2,
       title: 'Employees',
@@ -90,12 +92,12 @@ const Sidebar = () => {
     },
     { id: 4, title: 'Visit Logs', icon: <MdNotes />, url: '/logs' },
     { id: 5, title: 'Orders', icon: <GiPapers />, url: '/orders' },
-    {
-      id: 6,
-      title: 'Contacts',
-      icon: <FiUsers />,
-      url: '/organization-contacts',
-    },
+    // {
+    //   id: 6,
+    //   title: 'Contacts',
+    //   icon: <FiUsers />,
+    //   url: '/organization-contacts',
+    // },
   ];
 
   const [selected, setSelected]: any = useState(null);
@@ -144,64 +146,75 @@ const Sidebar = () => {
       );
     } else if (user?.user_type === AppRoles.ORGANIZATION) {
       return (
-        <ul className="flex flex-col mx-3 mt-3 gap-3">
-          {React.Children.toArray(
-            organizationSidebar.map((item: any) => {
-              return (
-                <li
-                  onClick={() => {
-                    setSelected(item);
-                    navigate(`${item.url}`);
-                  }}
-                  className={`inline-flex items-center text-xl py-2 px-4 rounded-[20px] gap-2 cursor-pointer text-white hover:bg-transparent transition-all ${
-                    selected?.id === item.id &&
-                    'text-zinc-900 bg-secondary hover:bg-secondary-imp'
-                  }`}
-                >
-                  <small className="text-lg">{item.icon}</small>
-                  <small className="text-lg font-normal">{item.title}</small>
-                </li>
-              );
-            })
-          )}
-        </ul>
+        <>
+          <ul className="flex flex-col mx-3 mt-8 gap-3">
+            {React.Children.toArray(
+              organizationSidebar.map((item: any) => {
+                return (
+                  <li
+                    onClick={() => {
+                      setSelected(item);
+                      navigate(`${item.url}`);
+                    }}
+                    className={`inline-flex items-center text-xl py-2 px-4 rounded-[20px] gap-2 cursor-pointer text-white hover:bg-transparent transition-all ${
+                      selected?.id === item.id &&
+                      'text-zinc-900 bg-secondary hover:bg-secondary-imp'
+                    }`}
+                  >
+                    <small className="text-lg">{item.icon}</small>
+                    <small className="text-lg font-normal">{item.title}</small>
+                    <small>{item.order}</small>
+                  </li>
+                );
+              })
+            )}
+          </ul>
+          <div className=" h-12">
+            <OrganizationView />
+          </div>
+        </>
       );
     } else if (user?.user_type === AppRoles.ORGANIZATION_ADMIN) {
       return (
-        <ul className="flex flex-col mx-3 mt-3 gap-3">
-          {React.Children.toArray(
-            organizationAdminSidebar.map((item: any) => {
-              return (
-                <li
-                  onClick={() => {
-                    setSelected(item);
-                    navigate(`${item.url}`);
-                  }}
-                  className={`inline-flex items-center text-xl py-2 px-4 rounded-[20px] gap-2 cursor-pointer text-white hover:bg-transparent transition-all ${
-                    selected?.id === item.id &&
-                    'text-zinc-900 bg-secondary hover:bg-secondary-imp'
-                  }`}
-                >
-                  <small className="text-lg">{item.icon}</small>
-                  <small className="text-lg font-normal">{item.title}</small>
-                </li>
-              );
-            })
-          )}
-        </ul>
+        <>
+          <ul className="flex flex-col mx-3 mt-8 gap-3">
+            {React.Children.toArray(
+              organizationAdminSidebar.map((item: any) => {
+                return (
+                  <li
+                    onClick={() => {
+                      setSelected(item);
+                      navigate(`${item.url}`);
+                    }}
+                    className={`inline-flex items-center text-xl py-2 px-4 rounded-[20px] gap-2 cursor-pointer text-white hover:bg-transparent transition-all ${
+                      selected?.id === item.id &&
+                      'text-zinc-900 bg-secondary hover:bg-secondary-imp'
+                    }`}
+                  >
+                    <small className="text-lg">{item.icon}</small>
+                    <small className="text-lg font-normal">{item.title}</small>
+                  </li>
+                );
+              })
+            )}
+          </ul>
+          <div>
+            <OrganizationAdminView />
+          </div>
+        </>
       );
     }
   };
 
   return (
     <section className="bg-primary h-full w-full">
-      <div className="relative h-[40px] font-bold text-xl text-center pt-1 inline-flex align-center gap-2 items-center justify-center w-full">
+      <div className="relative h-[40px] font-bold text-xl text-center pt-1 inline-flex align-center gap-2 items-center  w-full">
         <img
           className="pl-4 py-1 max-h-[100%] max-w-[100%]"
           src={Logo}
           alt="Bethelle"
         />
-        <span> Discovery</span>
+        <span className="text-white"> Discovery</span>
       </div>
 
       {renderRoleBasedItems()}

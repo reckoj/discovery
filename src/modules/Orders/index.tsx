@@ -21,6 +21,7 @@ import Modal from '../../shared/Modal';
 import Selector from '../../shared/Selector';
 import { getAlOrganizations } from '../../apis/organizations.api';
 import { getAllCustomers } from '../../apis/customers.api';
+import SearchBar from '../../shared/Searchbar/search';
 
 const Orders = ({}: any) => {
   const authToken: any = useSelector((state: RootState) => state.auth.value);
@@ -30,7 +31,7 @@ const Orders = ({}: any) => {
     raised_by: user?.email,
     associated_to: '',
     description: '',
-    status: 'in_complete',
+    status: 'Incomplete',
     organization: user?.name || user?.organization,
     is_deleted: false,
   });
@@ -114,11 +115,11 @@ const Orders = ({}: any) => {
   };
 
   const onHandle = (item: any, id: string) => {
-    if (item.title.toLowerCase() === 'resolve') {
+    if (item.title === 'Resolved' || item.title === 'Resolve') {
       let confirm = window.confirm(
         'Are you sure you want to resolve this order?'
       );
-      if (confirm) onUpdateOrder(id, { status: 'resolve' });
+      if (confirm) onUpdateOrder(id, { status: 'Resolved' });
     } else if (item.title.toLowerCase() === 'delete') {
       let confirm = window.confirm(
         'Are you sure you want to remove this order?'
@@ -127,12 +128,12 @@ const Orders = ({}: any) => {
     }
   };
 
-  const onGettingorders = async (page: number, island: '') => {
+  const onGettingorders = async (page: number, search = '') => {
     try {
       setLoading(true);
       let { status, data } = await getAllOrders(user?.user_type, {
         page,
-        island,
+        search,
         id: user?._id,
         user_type: user?.user_type,
         organization: user?.name || user?.organization,
@@ -165,7 +166,7 @@ const Orders = ({}: any) => {
       setLoading(true);
       let { status, data } = await removeOrder(id);
       if (status === 204) {
-        toast.success('User deleted successfully', toastUtil);
+        toast.success('Order deleted successfully', toastUtil);
         onGettingorders(1, '');
       }
     } catch (error: any) {
@@ -180,7 +181,7 @@ const Orders = ({}: any) => {
       setLoading(true);
       let { status, data } = await resolveOrder(id, payload);
       if (status === 200) {
-        toast.success('User updated successfully', toastUtil);
+        toast.success('Order updated successfully', toastUtil);
         onGettingorders(1, '');
       }
     } catch (error: any) {
@@ -210,7 +211,7 @@ const Orders = ({}: any) => {
           raised_by: user?.email,
           associated_to: '',
           description: '',
-          status: 'in_complete',
+          status: 'Incomplete',
           organization: user?.name || user?.organization,
           is_deleted: false,
         });
@@ -224,6 +225,10 @@ const Orders = ({}: any) => {
     }
   };
 
+  const onSearch = (str: string) => {
+    onGettingorders(1, str);
+  };
+
   return (
     <main className="h-full w-full inline-flex ">
       <section className="w-[280px] h-full">
@@ -231,7 +236,11 @@ const Orders = ({}: any) => {
       </section>
       <section className="w-board h-full">
         <Header />
-
+        <aside className="p-4 inline-flex items-end gap-5">
+          <div>
+            <SearchBar onSearch={onSearch} />
+          </div>
+        </aside>
         <aside className="inline-flex w-full align-center justify-between p-4">
           {user?.user_type === AppRoles.SUPER_ADMIN ||
           user?.user_type === AppRoles.ORGANIZATION ? (

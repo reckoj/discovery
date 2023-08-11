@@ -39,7 +39,7 @@ const Login = () => {
   };
 
   return (
-    <form className="absolute top-1/2 left-1/2 translate-x-[-50%] translate-y-[-50%] flex items-center flex-col rounded-lg shadow-1 bg-white p-4 w-[350px] h-[400px]">
+    <form className="absolute top-1/2 left-1/2 translate-x-[-50%] translate-y-[-50%] flex items-center flex-col rounded-lg shadow-1 bg-white p-4 w-[350px] h-[575px]">
       <div className="bg-primary text-white px-6 py-2 rounded-sm relative top-[-30px]">
         Login
       </div>
@@ -114,7 +114,7 @@ const Login = () => {
         Sign in
       </Button>
 
-      {/* <div>
+      <div>
         <h2 className="text-primary font-medium text-xl flex justify-center">
           Demo Accounts
         </h2>
@@ -136,13 +136,13 @@ const Login = () => {
         </div>
         <div className="mb-5">
           <h2 className="text-primary font-medium text-sm">
-            Employee username - harry@email.com
+            Employee username - harry@social.com
           </h2>
           <h2 className="text-primary font-medium text-sm">
             Password - Rayban23
           </h2>
         </div>
-      </div> */}
+      </div>
     </form>
   );
 };

@@ -36,7 +36,7 @@ export const getAlOrganizations = (params: any, token: string) => {
     headers: {
       Authorization: `Bearer ${token}`,
     },
-    params
+    params,
   });
 };
 
@@ -66,6 +66,14 @@ export const getOrganizationUsers = (params: any, token: string) => {
       Authorization: `Bearer ${token}`,
     },
     params,
+  });
+};
+
+export const getemployee = (id: string, token: string) => {
+  return axios.get(`${ENV.API_URL}/users/${id}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
   });
 };
 

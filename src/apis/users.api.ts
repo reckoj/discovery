@@ -32,6 +32,14 @@ export const getAlUsers = (params: any, token: string) => {
     })
 };
 
+export const getUser = (id: string, token: string) => {
+    return axios.get(`${ENV.API_URL}/users/${id}`, {
+        headers: {
+            Authorization: `Bearer ${token}`
+        }
+    })
+};
+
 export const removeUser = (id: any, token: string) => {
     return axios.delete(`${ENV.API_URL}/users/${id}`, {
         headers: {

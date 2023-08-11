@@ -27,7 +27,6 @@ const AdminView = ({}: any) => {
       setLoading(true);
       let { data, status } = await getStats(authToken);
       if (status === 200) {
-        
         setPayload({
           users: data?.data?.users,
           organizations: data?.data?.organizations,

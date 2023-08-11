@@ -17,7 +17,7 @@ import { AppRoles } from '../../enums/roles';
 import { getUser } from '../../apis/customers.api';
 import { getContact } from '../../apis/contacts.api';
 
-const User = ({}: any) => {
+const User = ({ }: any) => {
   const { id }: any = useParams();
   const user: any = useSelector((state: RootState) => state.user.value);
   const authToken: any = useSelector((state: RootState) => state.auth.value);
@@ -120,7 +120,7 @@ const User = ({}: any) => {
       if (!notes.content || !notes.title)
         return toast.warning('Please enter notes details', toastUtil);
       setLoading(true);
-      let payl = { ...notes, user: id, added_by: user?.email };
+      let payl = { ...notes, user: id, added_by: user?.email, userType: "Customer" };
       let { data, status } = await postUserNotes(payl, authToken);
       if (status === 201) {
         toast.success('Note added for user', toastUtil);

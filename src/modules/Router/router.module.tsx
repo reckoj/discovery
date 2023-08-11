@@ -15,6 +15,7 @@ const Customers = lazy(() => import('../Customers'));
 const Contacts = lazy(() => import('../Contacts'));
 const OrganizationAdmins = lazy(() => import('../OrganizationAdmins'));
 const User = lazy(() => import('../User'));
+const Employee = lazy(() => import('../Employee'));
 const Orders = lazy(() => import('../Orders'));
 const Profile = lazy(() => import('../Profile'));
 const Notes = lazy(() => import('../Notes'));
@@ -35,7 +36,7 @@ const AuthenticateAuthRoute = (props: PropsWithChildren) => {
   if (!authToken) {
     return <React.Fragment>{children}</React.Fragment>;
   }
-  return <Navigate to="/" replace />;
+  return <Navigate to="/organization-users" replace />;
 };
 
 const AuthenticateRole = (props: PropsWithChildren | any) => {
@@ -43,7 +44,7 @@ const AuthenticateRole = (props: PropsWithChildren | any) => {
   const user: any = useSelector((state: RootState) => state.user.value);
   if (role === AppRoles.ALL || user?.user_type === role)
     return <React.Fragment>{children}</React.Fragment>;
-  return <Navigate to="/" replace />;
+  return <Navigate to="/organization-users" replace />;
 };
 
 const RouterModule = () => {
@@ -133,6 +134,15 @@ const RouterModule = () => {
         element={
           <Suspense fallback={<Loader />}>
             <User guard={authToken} />
+          </Suspense>
+        }
+      />
+    
+      <Route
+        path="/employee/:id"
+        element={
+          <Suspense fallback={<Loader />}>
+            <Employee guard={authToken} />
           </Suspense>
         }
       />

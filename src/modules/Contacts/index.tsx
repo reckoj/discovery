@@ -26,7 +26,8 @@ import FileUpload from '../../shared/FileUpload';
 import { stateReason, stateReasonOrg } from '../../apis/logs.apis';
 import ImageViewer from '../../shared/ImageViewer';
 import Selector from '../../shared/Selector';
-import { islands, islands_all } from '../../utils/islands';
+import { countries, countries_all } from '../../utils/countries';
+import SearchBar from '../../shared/Searchbar/search';
 
 const Contacts = ({}: any) => {
   const navigate = useNavigate();
@@ -43,11 +44,12 @@ const Contacts = ({}: any) => {
     email: '',
     phone: '',
     address: '',
+    state: '',
     description: '',
     organization: user?.name || user?.organization,
     is_active: true,
     added_by: user?.email,
-    island: '',
+    country: '',
   });
   const [loading, setLoading] = useState(false);
   const [pagination, setPagination]: any = useState();
@@ -69,9 +71,10 @@ const Contacts = ({}: any) => {
     { key: 'fullname', label: 'Name' },
     { key: 'phone', label: 'Phone' },
     { key: 'address', label: 'Address' },
+    { key: 'state', label: 'State/Province' },
     { key: 'has_attachments', label: 'Uploaded Attachments' },
     { key: 'email', label: 'Email' },
-    { key: 'island', label: 'Island' },
+    { key: 'country', label: 'Country' },
     { key: 'description', label: 'Description' },
     { key: 'action', label: 'Actions' },
   ];
@@ -118,12 +121,11 @@ const Contacts = ({}: any) => {
     }
   };
 
-  const onGettingUsers = async (page: number, island: '') => {
+  const onGettingUsers = async (page: number, search = '') => {
     try {
-      setLoading(true);
       let options: any = getRoleBasedActions();
       let { status, data } = await getAllContacts(
-        { page, island, organization: user?.name || user?.organization },
+        { page, search, organization: user?.name || user?.organization },
         authToken
       );
       if (status === 200) {
@@ -145,7 +147,6 @@ const Contacts = ({}: any) => {
     } catch (error: any) {
       toast.error(error?.response?.data?.message, toastUtil);
     } finally {
-      setLoading(false);
     }
   };
 
@@ -186,6 +187,7 @@ const Contacts = ({}: any) => {
       if (!payload.email) error.push('Please enter the Email');
       if (!payload.phone) error.push('Please enter the Phone');
       if (!payload.address) error.push('Please enter the Address');
+      if (!payload.state) error.push('Please enter the State or Province');
       if (!payload.description) error.push('Please enter the Description');
       if (!attachments.length) error.push('Please enter all attachments');
       setLoading(true);
@@ -194,11 +196,12 @@ const Contacts = ({}: any) => {
       form.append('email', payload.email);
       form.append('phone', payload.phone);
       form.append('address', payload.address);
+      form.append('state', payload.state);
       form.append('description', payload.description);
       form.append('is_active', payload.is_active ? 'true' : 'false');
       form.append('added_by', payload.added_by);
       form.append('organization', payload.organization);
-      form.append('island', payload.island);
+      form.append('country', payload.country);
 
       attachments.forEach((at: any) => form.append('files', at.file));
       let { status } = await updateContact(form, payload?._id, authToken);
@@ -217,7 +220,8 @@ const Contacts = ({}: any) => {
         email: '',
         phone: '',
         address: '',
-        island: '',
+        state: '',
+        country: '',
         description: '',
         is_active: true,
         organization: user?.name || user?.organization,
@@ -234,6 +238,7 @@ const Contacts = ({}: any) => {
       if (!payload.email) error.push('Please enter the Email');
       if (!payload.phone) error.push('Please enter the Phonr');
       if (!payload.address) error.push('Please enter the Address');
+      if (!payload.state) error.push('Please enter the State or Province');
       if (!payload.description) error.push('Please enter the Description');
       setLoading(true);
       let fd = new FormData();
@@ -241,10 +246,11 @@ const Contacts = ({}: any) => {
       fd.append('email', payload.email);
       fd.append('phone', payload.phone);
       fd.append('address', payload.address);
+      fd.append('state', payload.state);
       fd.append('description', payload.description);
       fd.append('is_active', payload.is_active ? 'true' : 'false');
       fd.append('added_by', payload.added_by);
-      fd.append('island', payload.island);
+      fd.append('country', payload.country);
       fd.append('organization', payload.organization);
 
       attachments.forEach((at: any) => fd.append('files', at.file));
@@ -263,8 +269,9 @@ const Contacts = ({}: any) => {
         fullname: '',
         email: '',
         phone: '',
-        island: '',
+        country: '',
         address: '',
+        state: '',
         description: '',
         organization: user?.name || user?.organization,
         is_active: true,
@@ -355,6 +362,10 @@ const Contacts = ({}: any) => {
     onGettingUsers(1, item.value);
   };
 
+  const onSearch = (str: string) => {
+    onGettingUsers(1, str);
+  };
+
   return (
     <main className="h-full w-full inline-flex ">
       <section className="w-[280px] h-full">
@@ -376,6 +387,7 @@ const Contacts = ({}: any) => {
                     email: '',
                     phone: '',
                     address: '',
+                    state: '',
                     description: '',
                     organization: user?.name || user?.organization,
                     is_active: true,
@@ -388,17 +400,20 @@ const Contacts = ({}: any) => {
                 Add a Contact
               </Button>
             </aside>
-            <aside className="p-4">
+            <aside className="p-4 inline-flex items-end gap-5">
               <div className="w-[180px]">
-                <label className="text-cyan-800 text-sm">
-                  Select an Island
-                </label>
+                <label className="text-cyan-800 text-sm">Select Country</label>
                 <Selector
-                  options={islands_all}
+                  options={countries_all}
                   onChange={(item: any) => getSelected(item)}
                 />
               </div>
+
+              <div>
+                <SearchBar onSearch={onSearch} />
+              </div>
             </aside>
+
             <aside className="p-4 h-full">
               <Table
                 rows={rows}
@@ -445,7 +460,7 @@ const Contacts = ({}: any) => {
                           return { ...prev, fullname: e.target.value };
                         })
                       }
-                      placeholder="John Doe"
+                      placeholder=""
                       className=" h-[42px] shadow-sm appearance-none border border-neutral-300 rounded-md w-full py-2 px-3 text-gray-500 leading-tight focus:outline-none focus:shadow-outline"
                       type="text"
                     />
@@ -466,7 +481,27 @@ const Contacts = ({}: any) => {
                           return { ...prev, address: e.target.value };
                         })
                       }
-                      placeholder="New Orlands"
+                      placeholder=""
+                      className=" h-[42px] shadow-sm appearance-none border border-neutral-300 rounded-md w-full py-2 px-3 text-gray-500 leading-tight focus:outline-none focus:shadow-outline"
+                      type="text"
+                    />
+                  </div>
+                  <div className="mb-8 relative w-full">
+                    <label
+                      className="block text-neutral-700 text-sm font-medium"
+                      htmlFor="state"
+                    >
+                      State/Province <span>*</span>
+                    </label>
+                    <input
+                      id="state"
+                      value={payload?.state}
+                      onChange={(e) =>
+                        setPayload((prev: any) => {
+                          return { ...prev, state: e.target.value };
+                        })
+                      }
+                      placeholder=""
                       className=" h-[42px] shadow-sm appearance-none border border-neutral-300 rounded-md w-full py-2 px-3 text-gray-500 leading-tight focus:outline-none focus:shadow-outline"
                       type="text"
                     />
@@ -475,20 +510,20 @@ const Contacts = ({}: any) => {
                   <div className="mb-8 relative w-full">
                     <label
                       className="block text-neutral-700 text-sm font-medium"
-                      htmlFor="island"
+                      htmlFor="country"
                     >
-                      Island <b>{payload.island}</b> <span>*</span>
+                      Country <b>{payload.country}</b> <span>*</span>
                     </label>
                     <Selector
-                      options={islands}
-                      value={payload.island}
+                      options={countries}
+                      value={payload.country}
                       defaultValue={{
-                        label: payload.island,
-                        value: payload.island,
+                        label: payload.country,
+                        value: payload.country,
                       }}
                       onChange={(e: any) =>
                         setPayload((prev: any) => {
-                          return { ...prev, island: e.value };
+                          return { ...prev, country: e.value };
                         })
                       }
                     />
@@ -509,7 +544,7 @@ const Contacts = ({}: any) => {
                           return { ...prev, phone: e.target.value };
                         })
                       }
-                      placeholder="+9259556583258"
+                      placeholder=""
                       className=" h-[42px] shadow-sm appearance-none border border-neutral-300 rounded-md w-full py-2 px-3 text-gray-500 leading-tight focus:outline-none focus:shadow-outline"
                       type="text"
                     />
@@ -530,7 +565,7 @@ const Contacts = ({}: any) => {
                           return { ...prev, email: e.target.value };
                         })
                       }
-                      placeholder="john@doe.com"
+                      placeholder=""
                       className=" h-[42px] shadow-sm appearance-none border border-neutral-300 rounded-md w-full py-2 px-3 text-gray-500 leading-tight focus:outline-none focus:shadow-outline"
                       type="email"
                     />
@@ -565,7 +600,7 @@ const Contacts = ({}: any) => {
                       }
                       rows={4}
                       className=" h-[84px] shadow-sm appearance-none border border-neutral-300 rounded-md w-full py-2 px-3 text-gray-500 leading-tight focus:outline-none focus:shadow-outline"
-                      placeholder="Enter contact description"
+                      placeholder=""
                     />
                   </div>
 

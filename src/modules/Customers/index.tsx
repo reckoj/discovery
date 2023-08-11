@@ -28,8 +28,9 @@ import ImageViewer from '../../shared/ImageViewer';
 import Selector from '../../shared/Selector';
 import { islands, islands_all } from '../../utils/islands';
 import { getAlOrganizations } from '../../apis/organizations.api';
+import SearchBar from '../../shared/Searchbar/search';
 
-const Customers = ({ }: any) => {
+const Customers = ({}: any) => {
   const navigate = useNavigate();
   const authToken: any = useSelector((state: RootState) => state.auth.value);
   const user: any = useSelector((state: RootState) => state.user.value);
@@ -46,7 +47,11 @@ const Customers = ({ }: any) => {
     email: '',
     phone: '',
     address: '',
-    organization: user.user_type !== AppRoles.SUPER_ADMIN ? (user?.name || user?.organization) : "",
+    state: '',
+    organization:
+      user.user_type !== AppRoles.SUPER_ADMIN
+        ? user?.name || user?.organization
+        : '',
     is_active: true,
     added_by: user?.email,
     island: '',
@@ -71,6 +76,7 @@ const Customers = ({ }: any) => {
     { key: 'fullname', label: 'Name' },
     { key: 'phone', label: 'Phone' },
     { key: 'address', label: 'Address' },
+
     { key: 'has_attachments', label: 'Uploaded Attachments' },
     { key: 'email', label: 'Email' },
     { key: 'organization', label: 'Organization' },
@@ -93,7 +99,7 @@ const Customers = ({ }: any) => {
     let org_admin_opts = [
       { id: 1, title: 'View' },
       { id: 2, title: 'Edit' },
-      { id: 3, title: 'Delete' },
+      // { id: 3, title: 'Delete' },
     ];
     let user_opts = [{ id: 1, title: 'View' }];
     if (
@@ -120,23 +126,26 @@ const Customers = ({ }: any) => {
     }
   };
 
-  const onGettingUsers = async (page: number, island: '') => {
+  const onGettingUsers = async (page: number, search = '') => {
     try {
-      setLoading(true);
-      let org_res = await getAlOrganizations(
-        { island: '' },
-        authToken
-      );
+      let org_res = await getAlOrganizations({ search: '' }, authToken);
       if (org_res.status === 200) {
         let orgs = org_res.data?.data?.results?.map((org: any) => {
           return { label: org?.name, value: org?.name };
         });
         setOrganizations({ names: orgs, all: org_res.data?.data?.results });
       }
-      
+
       let options: any = getRoleBasedActions();
       let { status, data } = await getAllCustomers(
-        { page, island, organization: user.user_type !== AppRoles.SUPER_ADMIN ? (user?.name || user?.organization) : "" },
+        {
+          page,
+          search,
+          organization:
+            user.user_type !== AppRoles.SUPER_ADMIN
+              ? user?.name || user?.organization
+              : '',
+        },
         authToken
       );
       if (status === 200) {
@@ -155,11 +164,9 @@ const Customers = ({ }: any) => {
         setRows(dtrows);
         setPagination(data?.data);
       }
-
     } catch (error: any) {
       toast.error(error?.response?.data?.message, toastUtil);
     } finally {
-      setLoading(false);
     }
   };
 
@@ -200,6 +207,7 @@ const Customers = ({ }: any) => {
       if (!payload.email) error.push('Please enter the Email');
       if (!payload.phone) error.push('Please enter the Phonr');
       if (!payload.address) error.push('Please enter the Address');
+      if (!payload.state) error.push('Please enter State or Province');
       if (!attachments.length) error.push('Please enter all attachments');
       setLoading(true);
       let form = new FormData();
@@ -207,6 +215,7 @@ const Customers = ({ }: any) => {
       form.append('email', payload.email);
       form.append('phone', payload.phone);
       form.append('address', payload.address);
+      form.append('state', payload.state);
       form.append('is_active', payload.is_active ? 'true' : 'false');
       form.append('added_by', payload.added_by);
       form.append('organization', payload.organization);
@@ -229,9 +238,13 @@ const Customers = ({ }: any) => {
         email: '',
         phone: '',
         address: '',
+        state: '',
         island: '',
         is_active: true,
-        organization: user.user_type !== AppRoles.SUPER_ADMIN ? (user?.name || user?.organization) : "",
+        organization:
+          user.user_type !== AppRoles.SUPER_ADMIN
+            ? user?.name || user?.organization
+            : '',
         added_by: user?.email,
       });
       setLoading(false);
@@ -245,12 +258,14 @@ const Customers = ({ }: any) => {
       if (!payload.email) error.push('Please enter the Email');
       if (!payload.phone) error.push('Please enter the Phonr');
       if (!payload.address) error.push('Please enter the Address');
+      if (!payload.state) error.push('Please enter a State or Province');
       setLoading(true);
       let fd = new FormData();
       fd.append('fullname', payload.fullname);
       fd.append('email', payload.email);
       fd.append('phone', payload.phone);
       fd.append('address', payload.address);
+      fd.append('state', payload.state);
       fd.append('is_active', payload.is_active ? 'true' : 'false');
       fd.append('added_by', payload.added_by);
       fd.append('island', payload.island);
@@ -274,7 +289,11 @@ const Customers = ({ }: any) => {
         phone: '',
         island: '',
         address: '',
-        organization: user.user_type !== AppRoles.SUPER_ADMIN ? (user?.name || user?.organization) : "",
+        state: '',
+        organization:
+          user.user_type !== AppRoles.SUPER_ADMIN
+            ? user?.name || user?.organization
+            : '',
         is_active: true,
         added_by: user?.email,
       });
@@ -363,6 +382,10 @@ const Customers = ({ }: any) => {
     onGettingUsers(1, item.value);
   };
 
+  const onSearch = (str: string) => {
+    onGettingUsers(1, str);
+  };
+
   return (
     <main className="h-full w-full inline-flex ">
       <section className="w-[280px] h-full">
@@ -384,7 +407,11 @@ const Customers = ({ }: any) => {
                     email: '',
                     phone: '',
                     address: '',
-                    organization: user.user_type !== AppRoles.SUPER_ADMIN ? (user?.name || user?.organization) : "",
+                    state: '',
+                    organization:
+                      user.user_type !== AppRoles.SUPER_ADMIN
+                        ? user?.name || user?.organization
+                        : '',
                     is_active: true,
                     added_by: user?.email,
                   });
@@ -395,7 +422,7 @@ const Customers = ({ }: any) => {
                 Add a Customer
               </Button>
             </aside>
-            <aside className="p-4">
+            <aside className="p-4 inline-flex items-end gap-5">
               <div className="w-[180px]">
                 <label className="text-cyan-800 text-sm">
                   Select an Island
@@ -404,6 +431,10 @@ const Customers = ({ }: any) => {
                   options={islands_all}
                   onChange={(item: any) => getSelected(item)}
                 />
+              </div>
+
+              <div>
+                <SearchBar onSearch={onSearch} />
               </div>
             </aside>
             <aside className="p-4 h-full">
@@ -452,7 +483,7 @@ const Customers = ({ }: any) => {
                           return { ...prev, fullname: e.target.value };
                         })
                       }
-                      placeholder="John Doe"
+                      placeholder=""
                       className=" h-[42px] shadow-sm appearance-none border border-neutral-300 rounded-md w-full py-2 px-3 text-gray-500 leading-tight focus:outline-none focus:shadow-outline"
                       type="text"
                     />
@@ -463,7 +494,7 @@ const Customers = ({ }: any) => {
                       className="block text-neutral-700 text-sm font-medium"
                       htmlFor="address"
                     >
-                      Address
+                      Address <span>*</span>
                     </label>
                     <input
                       id="address"
@@ -473,7 +504,7 @@ const Customers = ({ }: any) => {
                           return { ...prev, address: e.target.value };
                         })
                       }
-                      placeholder="New Orlands"
+                      placeholder=""
                       className=" h-[42px] shadow-sm appearance-none border border-neutral-300 rounded-md w-full py-2 px-3 text-gray-500 leading-tight focus:outline-none focus:shadow-outline"
                       type="text"
                     />
@@ -501,7 +532,6 @@ const Customers = ({ }: any) => {
                     />
                   </div>
 
-
                   {user?.user_type === AppRoles.SUPER_ADMIN && (
                     <div className="mb-8 relative w-full">
                       <label
@@ -522,7 +552,6 @@ const Customers = ({ }: any) => {
                     </div>
                   )}
 
-
                   <div className="mb-8 relative w-full">
                     <label
                       className="block text-neutral-700 text-sm font-medium"
@@ -538,7 +567,7 @@ const Customers = ({ }: any) => {
                           return { ...prev, phone: e.target.value };
                         })
                       }
-                      placeholder="+9259556583258"
+                      placeholder=""
                       className=" h-[42px] shadow-sm appearance-none border border-neutral-300 rounded-md w-full py-2 px-3 text-gray-500 leading-tight focus:outline-none focus:shadow-outline"
                       type="text"
                     />
@@ -559,7 +588,7 @@ const Customers = ({ }: any) => {
                           return { ...prev, email: e.target.value };
                         })
                       }
-                      placeholder="john@doe.com"
+                      placeholder=""
                       className=" h-[42px] shadow-sm appearance-none border border-neutral-300 rounded-md w-full py-2 px-3 text-gray-500 leading-tight focus:outline-none focus:shadow-outline"
                       type="email"
                     />
@@ -642,7 +671,7 @@ const Customers = ({ }: any) => {
                     id="org"
                     value={payload?.reason}
                     onChange={(e) => setReason(e.target.value)}
-                    placeholder="Enter your reason here"
+                    placeholder=""
                     className=" h-[150px] shadow-sm appearance-none border border-neutral-300 rounded-md w-full py-2 px-3 mt-2 text-gray-500 leading-tight focus:outline-none focus:shadow-outline"
                   ></textarea>
                 </div>
